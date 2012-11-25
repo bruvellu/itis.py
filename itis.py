@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
-"""Client to access the web services of ITIS database (http://www.itis.gov/).
+'''Client to access the web services of ITIS database (http://www.itis.gov/).
 
 Usage:
 
     from itis import Itis
     itis = Itis()
-    results = itis.search_by_scientific_name("Genus name")
+    results = itis.search_by_scientific_name('Genus name')
     print(results)
 
-"""
+'''
 
 from suds.client import Client
 import logging
 
 # Create logger.
-logger = logging.getLogger("itis")
+logger = logging.getLogger('itis')
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
 formatter = logging.Formatter('[%(levelname)s] %(asctime)s @ %(module)s %(funcName)s (l%(lineno)d): %(message)s')
@@ -38,21 +38,21 @@ class Itis:
     def __init__(self):
         self.url = 'http://www.itis.gov/ITISWebService.xml'
 
-        logger.info("Initiating contact with ITIS...")
+        logger.info('Initiating contact with ITIS...')
 
         try:
             self.client = Client(self.url)
-            logger.info("Connected to ITIS web services.")
+            logger.info('Connected to ITIS web services.')
         except:
-            print("Could not connect to client!")
+            print('Could not connect to client!')
 
     def search_by_scientific_name(self, query, attempt=0):
-        """Search ITIS for scientific name.
+        '''Search by scientific name.
 
-        Wrapper to the method searchByScientificName:
+        searchByScientificName:
         http://www.itis.gov/ws_searchApiDescription.html#SrchBySciName
 
-        """
+        '''
 
         logger.info('Search ITIS for: %s', query)
 
@@ -68,7 +68,7 @@ class Itis:
         return results
 
     def get_accepted_names_from_tsn(self, tsn):
-        """Get accepted names from TSN."""
+        '''Get accepted names from TSN.'''
         try:
             response = self.client.service.getAcceptedNamesFromTSN(tsn)
         except:
@@ -77,13 +77,13 @@ class Itis:
         return response
 
     def get_full_hierarchy(self, tsn):
-        """Get full hierarchy.
+        '''Get full hierarchy.
 
         Uses: http://www.itis.gov/ws_hierApiDescription.html#getFullHierarchy
 
         http://www.itis.gov/ITISWebService/services/ITISService/getFullHierarchyFromTSN?tsn=1378
 
-        """
+        '''
 
         logger.info('Getting hierarchy...')
 
@@ -96,4 +96,4 @@ class Itis:
 
 # Script version?
 if __name__ == '__main__':
-    print("Command line not yet implemented.")
+    print('Command line not yet implemented.')
