@@ -7,5 +7,5 @@ Basic usage:
 
     from itis import Itis
     itis = Itis()
-    results = itis.search_by_scientific_name('Genus name')
+    results = itis.search_by_scientific_name('Priapulus caudatus')
     print(results)
