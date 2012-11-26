@@ -6,7 +6,7 @@ Usage:
 
     from itis import Itis
     itis = Itis()
-    results = itis.search_by_scientific_name('Genus name')
+    results = itis.search_by_scientific_name('Priapulus caudatus')
     print(results)
 
 '''
@@ -26,12 +26,6 @@ console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-# Cria o manipulador do arquivo.log.
-#file_handler = logging.FileHandler('logs/itis.log')
-#file_handler.setLevel(logging.DEBUG)
-#file_handler.setFormatter(formatter)
-#logger.addHandler(file_handler)
-
 
 class Itis:
     '''Main ITIS interactor.'''
@@ -46,53 +40,89 @@ class Itis:
         except:
             print('Could not connect to client!')
 
+    def wire(self, service, query, attempt=0):
+        '''Manage reconnections between client and ITIS.'''
+        try:
+            results = service(query)
+        except:
+            while attempt < 3:
+                logger.warning('Could not connect... try=%d' % attempt)
+                attempt += 1
+                self.wire(service, query, attempt)
+            logger.critical('Closing up the connection. I failed.')
+            results = None
+        return results
+
     def search_by_scientific_name(self, query, attempt=0):
         '''Search by scientific name.
 
         searchByScientificName:
         http://www.itis.gov/ws_searchApiDescription.html#SrchBySciName
 
+        Output:
+
+            results                     [main]
+                .scientificNames        [list]
+                    name                [object with scientific name]
+                        .combinedName   [string with genus+sp]
+                        .tsn            [entry tsn]
+
         '''
+        logger.info('Searching for the scientific name "%s"', query)
 
-        logger.info('Search ITIS for: %s', query)
-
-        try:
-            results = self.client.service.searchByScientificName(query)
-        except:
-            while attempt < 3:
-                logger.warning('Could not connect... try=%d' % attempt)
-                attempt += 1
-                self.search_by_scientific_name(query, attempt)
-            logger.critical('Closing up the connection. I failed.')
-            results = None
+        results = self.wire(
+            self.client.service.searchByScientificName,
+            query
+            )
         return results
 
     def get_accepted_names_from_tsn(self, tsn):
-        '''Get accepted names from TSN.'''
-        try:
-            response = self.client.service.getAcceptedNamesFromTSN(tsn)
-        except:
-            logger.warning('Connection problem %d', tsn)
-            response = None
-        return response
+        '''Get accepted names from TSN.
 
-    def get_full_hierarchy(self, tsn):
-        '''Get full hierarchy.
+        getAcceptedNamesFromTSN:
+        http://www.itis.gov/ws_tsnApiDescription.html#getAcceptedNames
 
-        Uses: http://www.itis.gov/ws_hierApiDescription.html#getFullHierarchy
+        Output:
 
-        http://www.itis.gov/ITISWebService/services/ITISService/getFullHierarchyFromTSN?tsn=1378
+            results             [main]
+                .acceptedNames  [list]
+                .tsn            [entry tsn]
 
         '''
+        logger.info('Retrieving accepted names from TSN=%s', tsn)
 
-        logger.info('Getting hierarchy...')
+        results = self.wire(
+            self.client.service.getAcceptedNamesFromTSN,
+            tsn
+            )
+        return results
 
-        try:
-            hierarchy = self.client.service.getFullHierarchyFromTSN(tsn)
-        except:
-            logger.warning('Error pulling hierarchy %s, connection problem', tsn)
-            hierarchy = None
-        return hierarchy
+    def get_full_hierarchy_from_tsn(self, tsn):
+        '''Get full hierarchy from TSN.
+
+        getFullHierarchyFromTSN:
+        http://www.itis.gov/ws_hierApiDescription.html#getFullHierarchy
+
+        Output:
+
+            results                 [main]
+                .tsn                [entry tsn]
+                .hierarchyList      [list]
+                    node            [node object]
+                        .parentName [name of parent node]
+                        .parentTsn  [tsn of parent node]
+                        .rankName   [node rank]
+                        .taxonName  [node name]
+                        .tsn        [node tsn]
+        '''
+        logger.info('Retrieving full hierarchy from TSN=%s', tsn)
+
+        results = self.wire(
+            self.client.service.getFullHierarchyFromTSN,
+            tsn
+            )
+        return results
+
 
 # Script version?
 if __name__ == '__main__':
