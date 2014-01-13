@@ -20,7 +20,7 @@ Basic usage
 -----------
 
 ```bash
-./bin/itis-cli.py -s Malus
+./bin/itis-cli.py -s "Rubus fruticosus"
 
 (SvcScientificNameList){
    scientificNames[] = 
