@@ -3,25 +3,40 @@ itis.py
 
 Python library to access the web services of [ITIS database](http://www.itis.gov/).
 
+Dependencies
+------------
+
+* [pip](http://www.pip-installer.org/en/latest/installing.html "Pip installation guide") - If you don't have pip installed, follow the link.
+
+Setup
+-----
+
+```bash
+pip install -r requirements.txt
+```
+
+
 Basic usage
 -----------
 
-    >>> from itis import Itis
-    >>> itis = Itis()
-    >>> results = itis.search_by_scientific_name('Priapulus caudatus')
-    >>> print(results)
-    (SvcScientificNameList){
-       scientificNames[] = 
-          (SvcScientificName){
-             tsn = "155156"
-             combinedName = "Priapulus caudatus"
-             unitInd1 = None
-             unitInd2 = None
-             unitInd3 = None
-             unitInd4 = None
-             unitName1 = "Priapulus                          "
-             unitName2 = "caudatus"
-             unitName3 = None
-             unitName4 = None
-          },
-     }
+```bash
+./bin/itis-cli.py -s Malus
+
+(SvcScientificNameList){
+   scientificNames[] = 
+      (SvcScientificName){
+         tsn = "504851"
+         author = "L."
+         combinedName = "Rubus fruticosus"
+         kingdom = "Plantae"
+         unitInd1 = None
+         unitInd2 = None
+         unitInd3 = None
+         unitInd4 = None
+         unitName1 = "Rubus"
+         unitName2 = "fruticosus"
+         unitName3 = None
+         unitName4 = None
+      },
+ }
+```
