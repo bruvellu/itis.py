@@ -30,12 +30,13 @@ logger.addHandler(console_handler)
 class Itis:
     '''Main ITIS interactor.'''
     def __init__(self):
-        self.url = 'http://www.itis.gov/ITISWebService.xml'
+        host = 'http://www.itis.gov/'
+        wsdl_path = host + 'ITISWebService/services/ITISService?wsdl'
 
         logger.info('Initiating contact with ITIS...')
 
         try:
-            self.client = Client(self.url)
+            self.client = Client(wsdl_path)
             logger.info('Connected to ITIS web services.')
         except:
             print('Could not connect to client!')
